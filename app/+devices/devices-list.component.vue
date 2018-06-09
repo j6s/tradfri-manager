@@ -8,9 +8,10 @@
         </router-link>
 
         <h3 class="collection-header">Remotes</h3>
-        <a v-for="remote in remotes" class="collection-item">
+        <div v-for="remote in remotes" class="collection-item">
             {{ remote.name }}
-        </a>
+            <div class="secondary-content" v-if="remote.battery">{{ remote.battery }} %</div>
+        </div>
     </div>
 </template>
 
