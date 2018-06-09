@@ -1,5 +1,5 @@
 {
-  "name": "tradfri",
+  "name": "@j6s/tradfri-manager",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,7 +8,7 @@
     "start": "npm run build && node main.js"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "body-parser": "^1.18.3",
     "css-loader": "^0.28.11",
