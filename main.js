@@ -7,6 +7,8 @@ const AccessoryTypes = require('node-tradfri-client/build/lib/accessory').Access
 const PowerSources = require('node-tradfri-client/build/lib/deviceInfo').PowerSources;
 
 (async () => {
+    settings.port = settings.port || 3111;
+
     // Initialize the coap client.
     const client = await initializeCoapClient();
     client.observeDevices();
@@ -78,7 +80,6 @@ const PowerSources = require('node-tradfri-client/build/lib/deviceInfo').PowerSo
     });
 
     // Start the app.
-    settings.port = settings.port || 3111;
     app.listen(settings.port, () => console.log(`Listening on port ${settings.port}`))
 })();
 
