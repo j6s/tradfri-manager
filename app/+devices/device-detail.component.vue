@@ -88,8 +88,9 @@
     }
 </style>
 <script>
-    import {getDeviceInformation, postDeviceState} from '../repository/device';
-    import {Chrome} from 'vue-color';
+    import { getDeviceInformation, postDeviceState } from '../repository/device';
+    import { Chrome } from 'vue-color';
+    import throttle from 'lodash/throttle'
 
     export default {
         name: 'device-detail',
@@ -101,6 +102,7 @@
         },
         data() {
             return {
+                preventSaving: false,
                 transitionTime: 1,
                 device: null
             }
@@ -115,8 +117,29 @@
              * Saves the current device state to the backend
              */
             async save() {
-                this.device = await postDeviceState(this.device, this.transitionTime);
+                if (this.preventSaving) {
+                    return;
+                }
+
+                this.preventSaving = true;
+                await postDeviceState(this.device, this.transitionTime);
+                this.preventSaving = false;
             },
+        },
+
+        watch: {
+
+            /**
+             * Automatically save the current devices state to the backend whenever
+             * the state changes.
+             *
+             * Requests are throttled to only fire once every 500ms to prevent overloading
+             * of the backend and the tradfri gateway.
+             */
+            device: {
+                deep: true,
+                handler: throttle(function() { this.save() }, 500)
+            }
         }
     }
 </script>

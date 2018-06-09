@@ -5,7 +5,6 @@ let promise;
  * This list is cached is that sucessive calls do not
  * fetch the list every time.
  *
- * @param {boolean} force - Force fetching the information over the network.
  * @returns {Promise<*[]>}
  */
 export function fetchDevices(force = false) {
@@ -21,11 +20,10 @@ export function fetchDevices(force = false) {
  * Retrieves the information of the device with the given id.
  *
  * @param {string} id
- * @param {boolean} force
  * @returns {Promise<*>}
  */
-export async function getDeviceInformation(id, force = false) {
-    const devices = await fetchDevices(force);
+export async function getDeviceInformation(id) {
+    const devices = await fetchDevices();
     return devices[id];
 }
 
@@ -43,18 +41,19 @@ export async function getDeviceInformation(id, force = false) {
 export function postDeviceState(device, transitionTime = 1) {
     return fetch('/api/device', {
         method: 'POST',
-        body: JSON.stringify({ device, transitionTime }),
+        body: JSON.stringify({device, transitionTime}),
         headers: {
             'Content-Type': 'application/json'
         }
-    })
-        .then(response => {
-            if (response.status !== 200) {
-                return response.json().then(error => {
-                    console.error(error);
-                    throw error;
-                });
-            }
-        })
-        .then(() => getDeviceInformation(device.id, true))
+    }).then(response => {
+        if (response.status !== 200) {
+            return response.json().then(error => {
+                console.error(error);
+                throw error;
+            });
+        }
+
+        promise = null;
+        return response.json();
+    });
 }
