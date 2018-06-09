@@ -2,40 +2,54 @@
     <div v-if="device">
         <h1>{{ device.name }}</h1>
         <h6>
-            {{ device.deviceInfo.manufacturer }}
-            {{ device.deviceInfo.modelNumber }}
+            {{ device.manufacturer }}
+            {{ device.model }}
         </h6>
 
-        <template v-for="light,index in device.lightList" class="table">
+        <!-- Lightbulb specific attributes -->
+        <template v-if="device.type === 'lightbulb'">
 
-
+            <!-- Toogle the bulb on and off -->
             <div class="switch form-element">
-                <label for="onOff">
+                <label for="isOn">
                     Off
-                    <input type="checkbox" v-model="light.onOff" id="onOff">
+                    <input type="checkbox" v-model="device.isOn" id="isOn">
                     <span class="lever"></span>
                     On
                 </label>
             </div>
 
-            <div class="form-element" v-if="light.hue">
+            <!-- Colorpicker for devices that are capable of full color -->
+            <div class="form-element" v-if="device.hsl">
                 <label for="color-picker">Color</label>
-                <color-picker :value="getColor(index)" @input="setColor(index, $event)" id="color-picker"
-                              class="form-control" style="max-width: 400px;" :disable-alpha="true"></color-picker>
+                <color-picker :value="device.hsl"
+                              @input="device.hsl = $event.hsl"
+                              id="color-picker"
+                              class="color-picker"
+                              :disable-alpha="true"></color-picker>
             </div>
 
+            <!-- Dimmer and temperature adjustment for simple bulbs -->
             <template v-else>
 
                 <div class="form-element">
-                    <label for="dimmer">Dimmer: {{ light.dimmer }}</label>
-                    <input type="range" min="0" max="100" v-model="light.dimmer" id="dimmer">
+                    <label for="dimmer">Dimmer: {{ device.dimmerState }}</label>
+                    <input type="range"
+                           min="0"
+                           max="100"
+                           v-model="device.dimmerState"
+                           id="dimmer">
                 </div>
 
-                <div class="form-element" v-if="light.colorTemperature !== undefined">
-                    <label for="temperature">Temperature: {{ light.colorTemperature }}</label>
-                    <input type="range" min="0" max="100" v-model="light.colorTemperature" id="temperature">
+                <div class="form-element" v-if="device.temperature !== undefined">
+                    <label for="temperature">Temperature: {{ device.temperature }}</label>
+                    <input type="range"
+                           min="0"
+                           max="100"
+                           v-model="device.temperature" id="temperature">
                 </div>
             </template>
+
         </template>
 
         <div class="form-footer">
@@ -68,6 +82,10 @@
     .form-footer input {
         height: 40px !important;
     }
+
+    .color-picker {
+        max-width: 400px;
+    }
 </style>
 <script>
     import {getDeviceInformation, postDeviceState} from '../repository/device';
@@ -99,38 +117,6 @@
             async save() {
                 this.device = await postDeviceState(this.device, this.transitionTime);
             },
-
-            /**
-             * Fetches the hsl values from the device data.
-             *
-             * @param {int} lightIndex - The index of the bulb in the lightList.
-             */
-            getColor(lightIndex) {
-                if (
-                    !this.device ||
-                    !this.device.lightList[lightIndex]
-                ) {
-                    return {h: 0, s: 0, l: 0};
-                }
-                return {
-                    h: this.device.lightList[lightIndex].hue,
-                    s: this.device.lightList[lightIndex].saturation / 100,
-                    l: this.device.lightList[lightIndex].dimmer / 100
-                }
-            },
-
-            /**
-             * Sets the HSL value for the given bulb.
-             *
-             * @param {int} lightIndex - The index of the bulb in the lightList.
-             * @param {Object} color - The color to set. This is an object that must
-             *                contain the key `hsl`.
-             */
-            setColor(lightIndex, color) {
-                this.device.lightList[lightIndex].hue = color.hsl.h;
-                this.device.lightList[lightIndex].saturation = color.hsl.s * 100;
-                this.device.lightList[lightIndex].dimmer = color.hsl.l * 100;
-            }
         }
     }
 </script>

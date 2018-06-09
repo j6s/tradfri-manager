@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack && cp -v node_modules/materialize-css/dist/css/materialize.css public/dist/materialize.css",
-    "start": "npm build && node main.js"
+    "start": "npm run build && node main.js"
   },
   "author": "",
   "license": "ISC",

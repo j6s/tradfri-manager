@@ -47,5 +47,14 @@ export function postDeviceState(device, transitionTime = 1) {
         headers: {
             'Content-Type': 'application/json'
         }
-    }).then(() => getDeviceInformation(device.instanceId, true))
+    })
+        .then(response => {
+            if (response.status !== 200) {
+                return response.json().then(error => {
+                    console.error(error);
+                    throw error;
+                });
+            }
+        })
+        .then(() => getDeviceInformation(device.id, true))
 }
